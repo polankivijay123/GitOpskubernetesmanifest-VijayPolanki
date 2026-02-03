@@ -7,7 +7,7 @@ node {
         checkout scm
     }
 
-   stage('Update GIT') {
+    stage('Update GIT') {
     script {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
 
@@ -26,8 +26,12 @@ node {
                     git add deployment.yaml
                     git commit -m "Done by Jenkins Job changemanifest: ${BUILD_NUMBER}" || echo "No changes to commit"
 
-                    echo '#!/bin/sh'        >  git-askpass.sh
-                    echo 'echo "$GIT_TOKEN"' >> git-askpass.sh
+                    # ---- GIT_ASKPASS (no hardcoding, no prompt) ----
+                    cat > git-askpass.sh << EOF
+                    #!/bin/sh
+                    echo "$GIT_TOKEN"
+                    EOF
+
                     chmod +x git-askpass.sh
 
                     export GIT_ASKPASS=$(pwd)/git-askpass.sh
@@ -39,7 +43,6 @@ node {
         }
     }
 }
-
 
 
 
